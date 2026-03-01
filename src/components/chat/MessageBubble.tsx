@@ -1,6 +1,7 @@
 "use client"
 
 import { Box, Text } from "@chakra-ui/react"
+import ReactMarkdown from "react-markdown"
 import { ProviderCard } from "@/components/ui/ProviderCard"
 import { RefillCard } from "@/components/ui/RefillCard"
 import type { UIMessage } from "ai"
@@ -31,18 +32,32 @@ export function MessageBubble({ role, content, parts }: MessageBubbleProps) {
         boxShadow="sm"
       >
         {content && (
-          <Text fontSize="sm" whiteSpace="pre-wrap">
-            {content}
-          </Text>
+          isUser ? (
+            <Text fontSize="sm" whiteSpace="pre-wrap">
+              {content}
+            </Text>
+          ) : (
+            <Box fontSize="sm" className="markdown-content">
+              <ReactMarkdown>{content}</ReactMarkdown>
+            </Box>
+          )
         )}
 
         {parts?.map((part, index) => {
           if (part.type === "text") {
-            return part.text ? (
-              <Text key={index} fontSize="sm" whiteSpace="pre-wrap">
-                {part.text}
-              </Text>
-            ) : null
+            if (!part.text) return null
+            if (isUser) {
+              return (
+                <Text key={index} fontSize="sm" whiteSpace="pre-wrap">
+                  {part.text}
+                </Text>
+              )
+            }
+            return (
+              <Box key={index} fontSize="sm" className="markdown-content">
+                <ReactMarkdown>{part.text}</ReactMarkdown>
+              </Box>
+            )
           }
 
           // Handle tool invocation parts (type starts with "tool-")
